@@ -1,0 +1,1291 @@
+﻿@model List<TaskManagement.Application.DTOs.ProjectDto>
+
+@{
+    Layout = null;
+
+    var adminName = User.Identity?.Name ?? "Administrator";
+
+    var adminInitial = !string.IsNullOrWhiteSpace(adminName)
+        ? adminName.Substring(0, 1).ToUpper()
+        : "A";
+
+    var totalProjects = Model?.Count ?? 0;
+
+    var activeProjects = Model?.Count(x =>
+        x.Status.Equals("Active", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+    var inProgressProjects = Model?.Count(x =>
+        x.Status.Equals("In Progress", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+    var completedProjects = Model?.Count(x =>
+        x.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Projects - TaskManager</title>
+
+    <!-- Bootstrap already exists in your project -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Existing admin dashboard styling -->
+    <link rel="stylesheet"
+          href="~/css/admin-dashboard.css"
+          asp-append-version="true" />
+
+    <!-- Projects page styling -->
+    <link rel="stylesheet"
+          href="~/css/admin-projects.css"
+          asp-append-version="true" />
+
+</head>
+
+
+<body class="admin-projects-page">
+
+
+<div class="admin-layout">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="sidebar-brand">
+
+            <div class="brand-logo">
+                ✓
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    TaskManager
+                </strong>
+
+                <span>
+                    Plan · Assign · Track
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+
+            <!-- Dashboard -->
+
+            <a href="@Url.Action(
+                    "Index",
+                    "Dashboard",
+                    new { area = "Admin" })"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ⌂
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- Projects -->
+
+            <a href="@Url.Action(
+                    "Index",
+                    "Projects",
+                    new { area = "Admin" })"
+               class="sidebar-link active">
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                <span>
+                    Projects
+                </span>
+
+            </a>
+
+
+            <!-- Tasks -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ✓
+                </span>
+
+                <span>
+                    Tasks
+                </span>
+
+            </a>
+
+
+            <!-- Users -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ♙
+                </span>
+
+                <span>
+                    Users
+                </span>
+
+            </a>
+
+
+            <!-- Manage Roles -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ⚿
+                </span>
+
+                <span>
+                    Manage Roles
+                </span>
+
+            </a>
+
+
+            <!-- Calendar -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    □
+                </span>
+
+                <span>
+                    Calendar
+                </span>
+
+            </a>
+
+
+            <!-- Reports -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ▥
+                </span>
+
+                <span>
+                    Reports
+                </span>
+
+            </a>
+
+
+            <!-- Settings -->
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- ADMIN CARD -->
+
+        <div class="admin-card">
+
+            <div class="admin-card-icon">
+                ♛
+            </div>
+
+            <div class="admin-card-content">
+
+                <strong>
+                    Admin Panel
+                </strong>
+
+                <span>
+                    Manage projects, users
+                    and tasks in one place.
+                </span>
+
+            </div>
+
+            <span class="admin-arrow">
+                →
+            </span>
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <!-- SEARCH -->
+
+            <div class="search-box">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input type="text"
+                       id="globalSearch"
+                       placeholder="Search projects, tasks or users..." />
+
+                <span class="search-shortcut">
+                    Ctrl K
+                </span>
+
+            </div>
+
+
+            <!-- RIGHT -->
+
+            <div class="topbar-right">
+
+
+                <!-- NOTIFICATION -->
+
+                <button type="button"
+                        class="icon-button notification-button">
+
+                    ♧
+
+                    <span class="notification-dot"></span>
+
+                </button>
+
+
+                <!-- PROFILE -->
+
+                <div class="dropdown">
+
+
+                    <button type="button"
+                            class="profile profile-button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+
+                        <div class="profile-avatar">
+
+                            @adminInitial
+
+                        </div>
+
+
+                        <div class="profile-info">
+
+                            <strong>
+                                @adminName
+                            </strong>
+
+                            <span>
+                                Administrator
+                            </span>
+
+                        </div>
+
+
+                        <span class="profile-arrow">
+                            ▾
+                        </span>
+
+
+                    </button>
+
+
+                    <ul class="dropdown-menu dropdown-menu-end profile-menu">
+
+
+                        <li>
+
+                            <a href="#"
+                               class="dropdown-item">
+
+                                My Profile
+
+                            </a>
+
+                        </li>
+
+
+                        <li>
+
+                            <a href="#"
+                               class="dropdown-item">
+
+                                Settings
+
+                            </a>
+
+                        </li>
+
+
+                        <li>
+
+                            <hr class="dropdown-divider" />
+
+                        </li>
+
+
+                        <li>
+
+                            <form asp-area=""
+                                  asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="dropdown-item logout-item">
+
+                                    Logout
+
+                                </button>
+
+                            </form>
+
+                        </li>
+
+
+                    </ul>
+
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             PROJECT CONTENT
+        ================================================== -->
+
+        <section class="projects-container">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="projects-page-header">
+
+
+                <div>
+
+                    <div class="projects-breadcrumb">
+
+                        <span>
+                            Admin
+                        </span>
+
+                        <span>
+                            /
+                        </span>
+
+                        <strong>
+                            Projects
+                        </strong>
+
+                    </div>
+
+
+                    <h1>
+                        Projects
+                    </h1>
+
+
+                    <p>
+                        Manage all projects, view details,
+                        track progress and manage tasks.
+                    </p>
+
+                </div>
+
+
+                <!-- ADD PROJECT -->
+
+                <button type="button"
+                        class="add-project-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addProjectModal">
+
+                    <span class="plus-icon">
+                        +
+                    </span>
+
+                    Add Project
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PROJECT STATISTICS
+            ================================================== -->
+
+            <div class="project-statistics">
+
+
+                <!-- TOTAL -->
+
+                <div class="project-stat-card">
+
+                    <div class="project-stat-icon blue">
+                        ▣
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Projects
+                        </span>
+
+                        <strong id="totalProjects">
+                            @totalProjects
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIVE -->
+
+                <div class="project-stat-card">
+
+                    <div class="project-stat-icon green">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Active
+                        </span>
+
+                        <strong id="activeProjects">
+                            @activeProjects
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- IN PROGRESS -->
+
+                <div class="project-stat-card">
+
+                    <div class="project-stat-icon orange">
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <span>
+                            In Progress
+                        </span>
+
+                        <strong id="inProgressProjects">
+                            @inProgressProjects
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMPLETED -->
+
+                <div class="project-stat-card">
+
+                    <div class="project-stat-icon purple">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Completed
+                        </span>
+
+                        <strong id="completedProjects">
+                            @completedProjects
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SEARCH + FILTER
+            ================================================== -->
+
+            <div class="project-filter-bar">
+
+
+                <div class="project-search">
+
+                    <span>
+                        ⌕
+                    </span>
+
+                    <input type="text"
+                           id="projectSearch"
+                           placeholder="Search projects by title, description or tech stack..." />
+
+                </div>
+
+
+                <select id="statusFilter"
+                        class="status-filter">
+
+                    <option value="">
+                        All Status
+                    </option>
+
+                    <option value="Planning">
+                        Planning
+                    </option>
+
+                    <option value="Active">
+                        Active
+                    </option>
+
+                    <option value="In Progress">
+                        In Progress
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
+                    <option value="On Hold">
+                        On Hold
+                    </option>
+
+                </select>
+
+
+                <button type="button"
+                        id="resetFilters"
+                        class="reset-filter-btn">
+
+                    Reset
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PROJECT LIST
+            ================================================== -->
+
+            <div id="projectsList">
+
+
+                @if (Model != null && Model.Any())
+                {
+
+
+                    foreach (var project in Model)
+                    {
+
+
+                        var projectInitial =
+                            !string.IsNullOrWhiteSpace(project.ProjectTitle)
+                                ? project.ProjectTitle.Substring(0, 1).ToUpper()
+                                : "P";
+
+
+                        <article class="project-item"
+                                 data-title="@project.ProjectTitle"
+                                 data-description="@project.Description"
+                                 data-tech="@project.TechStack"
+                                 data-status="@project.Status"
+                                 data-project-id="@project.Id">
+
+
+                            <!-- LEFT -->
+
+                            <div class="project-item-left">
+
+
+                                <div class="project-logo">
+
+                                    @projectInitial
+
+                                </div>
+
+
+                                <div class="project-details">
+
+
+                                    <h2>
+                                        @project.ProjectTitle
+                                    </h2>
+
+
+                                    <p class="project-description">
+
+                                        @(
+                                            string.IsNullOrWhiteSpace(project.Description)
+                                                ? "No description provided for this project."
+                                                : project.Description
+                                        )
+
+                                    </p>
+
+
+                                    <!-- META -->
+
+                                    <div class="project-meta">
+
+
+                                        <div class="project-meta-item">
+
+                                            <span class="meta-icon">
+                                                📅
+                                            </span>
+
+                                            <span>
+
+                                                <small>
+                                                    Start Date
+                                                </small>
+
+                                                @project.StartDate.ToString("dd MMM yyyy")
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="meta-line"></div>
+
+
+                                        <div class="project-meta-item">
+
+                                            <span class="meta-icon">
+                                                📅
+                                            </span>
+
+                                            <span>
+
+                                                <small>
+                                                    End Date
+                                                </small>
+
+                                                @project.EndDate.ToString("dd MMM yyyy")
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="meta-line"></div>
+
+
+                                        <div class="project-meta-item">
+
+                                            <span class="meta-icon">
+                                                👥
+                                            </span>
+
+                                            <span>
+
+                                                <small>
+                                                    Members
+                                                </small>
+
+                                                @project.MembersCount
+
+                                            </span>
+
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <!-- TECH STACK -->
+
+                                    @if (!string.IsNullOrWhiteSpace(project.TechStack))
+                                    {
+
+                                        <div class="tech-stack-list">
+
+
+                                            @foreach (var tech in project.TechStack.Split(
+                                                ',',
+                                                StringSplitOptions.RemoveEmptyEntries))
+                                            {
+
+                                                <span class="tech-tag">
+                                                    @tech.Trim()
+                                                </span>
+
+                                            }
+
+
+                                        </div>
+
+                                    }
+
+
+                                </div>
+
+
+                            </div>
+
+
+
+                            <!-- RIGHT -->
+
+                            <div class="project-item-right">
+
+
+                                <!-- STATUS -->
+
+                                <div class="project-status-wrapper">
+
+                                    <span class="status-title">
+                                        Status
+                                    </span>
+
+                                    <span class="project-status
+                                        @GetStatusClass(project.Status)">
+
+                                        @project.Status
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- ACTIONS -->
+
+                                <div class="project-actions">
+
+
+                                    <!-- VIEW -->
+
+                                    <button type="button"
+                                            class="project-action-btn view-project-btn"
+                                            data-project-id="@project.Id">
+
+                                        <span>
+                                            ◉
+                                        </span>
+
+                                        View Details
+
+                                    </button>
+
+
+                                    <!-- MANAGE TASKS -->
+
+                                    <button type="button"
+                                            class="project-action-btn manage-task-btn"
+                                            data-project-id="@project.Id">
+
+                                        <span>
+                                            ☷
+                                        </span>
+
+                                        Manage Tasks
+
+                                    </button>
+
+
+                                    <!-- MORE -->
+
+                                    <button type="button"
+                                            class="project-more-btn"
+                                            data-project-id="@project.Id">
+
+                                        ⋮
+
+                                    </button>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </article>
+
+
+                    }
+
+
+                }
+                else
+                {
+
+
+                    <!-- EMPTY -->
+
+                    <div class="empty-project-state"
+                         id="emptyProjectState">
+
+
+                        <div class="empty-project-icon">
+                            ▣
+                        </div>
+
+
+                        <h3>
+                            No projects yet
+                        </h3>
+
+
+                        <p>
+                            Create your first project to get started.
+                        </p>
+
+
+                        <button type="button"
+                                class="add-project-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addProjectModal">
+
+                            <span class="plus-icon">
+                                +
+                            </span>
+
+                            Add Project
+
+                        </button>
+
+
+                    </div>
+
+
+                }
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     ADD PROJECT MODAL
+========================================================= -->
+
+<div class="modal fade"
+     id="addProjectModal"
+     tabindex="-1"
+     aria-labelledby="addProjectModalLabel"
+     aria-hidden="true">
+
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+
+        <div class="modal-content project-modal">
+
+
+            <!-- MODAL HEADER -->
+
+            <div class="modal-header project-modal-header">
+
+
+                <div class="modal-title-wrapper">
+
+
+                    <div class="modal-project-icon">
+                        ▣
+                    </div>
+
+
+                    <div>
+
+                        <h2 id="addProjectModalLabel">
+                            Add New Project
+                        </h2>
+
+                        <p>
+                            Enter the details for your new project.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+
+            </div>
+
+
+
+            <!-- FORM -->
+
+            <form id="createProjectForm"
+                  method="post"
+                  action="@Url.Action(
+                      "Create",
+                      "Projects",
+                      new { area = "Admin" })">
+
+
+                @Html.AntiForgeryToken()
+
+
+                <!-- BODY -->
+
+                <div class="modal-body project-modal-body">
+
+
+                    <!-- PROJECT TITLE -->
+
+                    <div class="form-field">
+
+
+                        <label for="ProjectTitle">
+
+                            Project Title
+
+                            <span>*</span>
+
+                        </label>
+
+
+                        <input type="text"
+                               id="ProjectTitle"
+                               name="ProjectTitle"
+                               class="project-input"
+                               maxlength="150"
+                               placeholder="Enter project title"
+                               required />
+
+
+                    </div>
+
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-field">
+
+
+                        <label for="Description">
+                            Description
+                        </label>
+
+
+                        <textarea id="Description"
+                                  name="Description"
+                                  class="project-input project-textarea"
+                                  maxlength="2000"
+                                  rows="4"
+                                  placeholder="Describe what this project is about..."></textarea>
+
+
+                    </div>
+
+
+
+                    <!-- TECH STACK -->
+
+                    <div class="form-field">
+
+
+                        <label for="TechStack">
+                            Tech Stack
+                        </label>
+
+
+                        <input type="text"
+                               id="TechStack"
+                               name="TechStack"
+                               class="project-input"
+                               maxlength="500"
+                               placeholder="e.g. ASP.NET Core, SQL Server, Bootstrap" />
+
+
+                        <small>
+                            Separate technologies using commas.
+                        </small>
+
+
+                    </div>
+
+
+
+                    <!-- DATES -->
+
+                    <div class="project-form-row">
+
+
+                        <div class="form-field">
+
+
+                            <label for="StartDate">
+
+                                Start Date
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <input type="date"
+                                   id="StartDate"
+                                   name="StartDate"
+                                   class="project-input"
+                                   required />
+
+
+                        </div>
+
+
+                        <div class="form-field">
+
+
+                            <label for="EndDate">
+
+                                End Date
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <input type="date"
+                                   id="EndDate"
+                                   name="EndDate"
+                                   class="project-input"
+                                   required />
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- STATUS + MEMBERS -->
+
+                    <div class="project-form-row">
+
+
+                        <div class="form-field">
+
+
+                            <label for="Status">
+
+                                Status
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <select id="Status"
+                                    name="Status"
+                                    class="project-input"
+                                    required>
+
+
+                                <option value="Planning">
+                                    Planning
+                                </option>
+
+
+                                <option value="Active">
+                                    Active
+                                </option>
+
+
+                                <option value="In Progress">
+                                    In Progress
+                                </option>
+
+
+                                <option value="Completed">
+                                    Completed
+                                </option>
+
+
+                                <option value="On Hold">
+                                    On Hold
+                                </option>
+
+
+                            </select>
+
+
+                        </div>
+
+
+
+                        <div class="form-field">
+
+
+                            <label for="MembersCount">
+                                Members Count
+                            </label>
+
+
+                            <input type="number"
+                                   id="MembersCount"
+                                   name="MembersCount"
+                                   class="project-input"
+                                   min="1"
+                                   max="100"
+                                   value="1" />
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- ERROR -->
+
+                    <div id="projectFormError"
+                         class="project-form-message error"
+                         style="display:none;">
+                    </div>
+
+                    <!-- FOOTER -->
+
+                    <div class="modal-footer project-modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Create Project
+                        </button>
+
+                    </div>
+
+                </div> <!-- /.modal-body -->
+
+            </form>
+
+        </div> <!-- /.modal-content -->
+
+    </div> <!-- /.modal-dialog -->
+
+</div> <!-- /#addProjectModal -->
+
+
+@functions {
+    // Return a CSS class name for a given project status
+    private string GetStatusClass(string status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return "status-planning";
+
+        return status.Trim().ToLower() switch
+        {
+            "active" => "status-active",
+            "in progress" => "status-inprogress",
+            "completed" => "status-completed",
+            "on hold" => "status-onhold",
+            _ => "status-planning",
+        };
+    }
+}
+
+</body>
+
+</html>

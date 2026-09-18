@@ -1,0 +1,403 @@
+﻿@model TaskManagement.Application.DTOs.RegisterDto
+
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Create Account - TaskManager</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/account.css"
+          asp-append-version="true" />
+
+</head>
+
+<body class="account-page">
+
+    <div class="account-wrapper">
+
+        <!-- LEFT PANEL -->
+        <section class="account-brand-panel">
+
+            <div class="brand-content">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="brand-logo text-decoration-none">
+
+                    <span class="brand-icon">
+                        ✓
+                    </span>
+
+                    <span>
+                        <strong>TaskManager</strong>
+                        <small>Plan · Track · Grow</small>
+                    </span>
+
+                </a>
+
+
+                <div class="brand-message">
+
+                    <span class="eyebrow">
+                        GET STARTED
+                    </span>
+
+                    <h1>
+                        Take control
+                        <br />
+                        of your work.
+                    </h1>
+
+                    <p>
+                        Create your TaskManager account and bring
+                        your tasks, projects, and priorities together.
+                    </p>
+
+
+                    <div class="feature-list">
+
+                        <div class="feature-item">
+
+                            <span class="feature-icon">
+                                ✓
+                            </span>
+
+                            <div>
+
+                                <strong>Organize everything</strong>
+
+                                <small>
+                                    Manage tasks without the clutter.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="feature-item">
+
+                            <span class="feature-icon">
+                                ↗
+                            </span>
+
+                            <div>
+
+                                <strong>Monitor progress</strong>
+
+                                <small>
+                                    See what is completed and what is next.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="feature-item">
+
+                            <span class="feature-icon">
+                                +
+                            </span>
+
+                            <div>
+
+                                <strong>Collaborate better</strong>
+
+                                <small>
+                                    Keep your team aligned and productive.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="brand-footer">
+
+                © 2026 TaskManager. Built for productive teams.
+
+            </div>
+
+        </section>
+
+
+        <!-- FORM PANEL -->
+        <section class="account-form-panel">
+
+            <div class="form-container">
+
+                <!-- MOBILE BRAND -->
+                <div class="mobile-brand">
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="brand-logo text-decoration-none">
+
+                        <span class="brand-icon">
+                            ✓
+                        </span>
+
+                        <span>
+                            <strong>TaskManager</strong>
+                            <small>Plan · Track · Grow</small>
+                        </span>
+
+                    </a>
+
+                </div>
+
+
+                <div class="form-header">
+
+                    <div class="form-icon">
+                        <span>+</span>
+                    </div>
+
+                    <h2>Create your account</h2>
+
+                    <p>
+                        Start organizing your work today
+                    </p>
+
+                </div>
+
+
+                <!-- MESSAGE -->
+                <div id="registerMessage"
+                     class="alert d-none account-alert"
+                     role="alert">
+                </div>
+
+
+                <form id="registerForm"
+                      novalidate>
+
+                    @Html.AntiForgeryToken()
+
+
+                    <!-- FULL NAME -->
+                    <div class="mb-3">
+
+                        <label for="FullName"
+                               class="form-label">
+                            Full name
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ♙
+                            </span>
+
+                            <input type="text"
+                                   id="FullName"
+                                   name="FullName"
+                                   class="form-control"
+                                   placeholder="Enter your full name"
+                                   autocomplete="name"
+                                   required />
+
+                        </div>
+
+                        <div id="fullNameError"
+                             class="field-error">
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="mb-3">
+
+                        <label for="Email"
+                               class="form-label">
+                            Email address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ✉
+                            </span>
+
+                            <input type="email"
+                                   id="Email"
+                                   name="Email"
+                                   class="form-control"
+                                   placeholder="Enter your email"
+                                   autocomplete="email"
+                                   required />
+
+                        </div>
+
+                        <div id="emailError"
+                             class="field-error">
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+                    <div class="mb-3">
+
+                        <label for="Password"
+                               class="form-label">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                🔒
+                            </span>
+
+                            <input type="password"
+                                   id="Password"
+                                   name="Password"
+                                   class="form-control"
+                                   placeholder="Create a password"
+                                   autocomplete="new-password"
+                                   required />
+
+                            <button type="button"
+                                    id="togglePassword"
+                                    class="password-toggle"
+                                    aria-label="Show password">
+
+                                ◉
+
+                            </button>
+
+                        </div>
+
+                        <div class="password-hint">
+                            Minimum 6 characters with uppercase, lowercase and number.
+                        </div>
+
+                        <div id="passwordError"
+                             class="field-error">
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+                    <div class="mb-4">
+
+                        <label for="ConfirmPassword"
+                               class="form-label">
+                            Confirm password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                🔒
+                            </span>
+
+                            <input type="password"
+                                   id="ConfirmPassword"
+                                   name="ConfirmPassword"
+                                   class="form-control"
+                                   placeholder="Confirm your password"
+                                   autocomplete="new-password"
+                                   required />
+
+                            <button type="button"
+                                    id="toggleConfirmPassword"
+                                    class="password-toggle"
+                                    aria-label="Show password">
+
+                                ◉
+
+                            </button>
+
+                        </div>
+
+                        <div id="confirmPasswordError"
+                             class="field-error">
+                        </div>
+
+                    </div>
+
+
+                    <!-- REGISTER -->
+                    <button type="submit"
+                            id="registerButton"
+                            class="btn account-btn w-100">
+
+                        <span id="registerButtonText">
+                            Create account
+                        </span>
+
+                        <span id="registerSpinner"
+                              class="spinner-border spinner-border-sm d-none"
+                              role="status"
+                              aria-hidden="true">
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <div class="form-bottom">
+
+                    <span>
+                        Already have an account?
+                    </span>
+
+                    <a asp-controller="Account"
+                       asp-action="Login">
+                        Sign in
+                    </a>
+
+                </div>
+
+
+                <div class="security-note">
+
+                    <span>🔐</span>
+
+                    <span>
+                        Your information is protected and securely stored.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/Account/register.js"
+            asp-append-version="true">
+    </script>
+
+</body>
+</html>

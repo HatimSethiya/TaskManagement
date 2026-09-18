@@ -1,0 +1,1410 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = null;
+
+    var userName = User.Identity?.Name ?? "Administrator";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>TaskManager - Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/admin-dashboard.css"
+          asp-append-version="true" />
+
+</head>
+
+
+<body class="admin-dashboard">
+
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-logo">
+                ✓
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    TaskManager
+                </strong>
+
+                <span>
+                    Plan · Assign · Track
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+            <a href="#"
+               class="sidebar-link active">
+
+                <span class="nav-icon">⌂</span>
+
+                <span>Dashboard</span>
+
+            </a>
+
+
+            <a href="@Url.Action(
+                       "Index",
+                       "Projects",
+                       new { area = "Admin" })"
+               class="sidebar-link">
+
+                <span class="nav-icon">▣</span>
+
+                <span>Projects</span>
+
+            </a>
+
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">♙</span>
+
+                <span>Users</span>
+
+            </a>
+
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">⚿</span>
+
+                <span>Manage Roles</span>
+
+            </a>
+
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">▣</span>
+
+                <span>Calendar</span>
+
+            </a>
+
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">▥</span>
+
+                <span>Reports</span>
+
+            </a>
+
+
+            <a href="#"
+               class="sidebar-link">
+
+                <span class="nav-icon">⚙</span>
+
+                <span>Settings</span>
+
+            </a>
+
+        </nav>
+
+
+        <!-- ADMIN CARD -->
+
+        <div class="admin-card">
+
+            <div class="admin-card-icon">
+                ♛
+            </div>
+
+            <div class="admin-card-content">
+
+                <strong>
+                    Admin Panel
+                </strong>
+
+                <span>
+                    Manage projects, users
+                    and tasks in one place.
+                </span>
+
+            </div>
+
+            <span class="admin-arrow">
+                →
+            </span>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =====================================
+             TOP BAR
+        ====================================== -->
+
+        <header class="topbar">
+
+            <div class="search-box">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input type="text"
+                       placeholder="Search projects, tasks or users..." />
+
+                <span class="search-shortcut">
+                    Ctrl K
+                </span>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <button type="button"
+                        class="icon-button notification-button">
+
+                    ♧
+
+                    <span class="notification-dot"></span>
+
+                </button>
+
+
+                <!-- PROFILE DROPDOWN -->
+
+                <div class="dropdown">
+
+                    <button class="profile profile-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+                        <div class="profile-avatar">
+                            AD
+                        </div>
+
+                        <div class="profile-info">
+
+                            <strong>
+                                @userName
+                            </strong>
+
+                            <span>
+                                Administrator
+                            </span>
+
+                        </div>
+
+                        <span class="profile-arrow">
+                            ⌄
+                        </span>
+
+                    </button>
+
+
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown">
+
+
+                        <!-- PROFILE HEADER -->
+
+                        <div class="profile-dropdown-header">
+
+                            <div class="profile-avatar large">
+                                AD
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    @userName
+                                </strong>
+
+                                <span>
+                                    Administrator
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="dropdown-divider"></div>
+
+
+                        <!-- PROFILE -->
+
+                        <a href="#"
+                           class="dropdown-item">
+
+                            <span class="dropdown-icon">
+                                ♙
+                            </span>
+
+                            My Profile
+
+                        </a>
+
+
+                        <!-- SETTINGS -->
+
+                        <a href="#"
+                           class="dropdown-item">
+
+                            <span class="dropdown-icon">
+                                ⚙
+                            </span>
+
+                            Settings
+
+                        </a>
+
+
+                        <div class="dropdown-divider"></div>
+
+
+                        <!-- LOGOUT -->
+
+                        <form id="logoutForm"
+                              action="/Account/Logout"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    id="logoutButton"
+                                    class="dropdown-item logout-item">
+
+                                <span class="dropdown-icon">
+                                    ↪
+                                </span>
+
+                                Logout
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =====================================
+             DASHBOARD
+        ====================================== -->
+
+        <div class="dashboard-container">
+
+
+            <!-- WELCOME -->
+
+            <section class="welcome-section">
+
+                <div>
+
+                    <div class="welcome-small">
+                        Welcome back,
+                    </div>
+
+                    <h1>
+                        Admin! <span>👋</span>
+                    </h1>
+
+                    <p>
+                        Create projects, assign tasks and
+                        track progress all in one place.
+                    </p>
+
+                </div>
+
+
+                <div class="welcome-quote">
+
+                    <div class="current-date">
+                        @DateTime.Now.ToString("ddd, dd MMM yyyy")
+                    </div>
+
+                    <div class="quote">
+                        "Good management creates great results."
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- DECORATIVE HEADER -->
+
+            <div class="dashboard-decoration">
+
+                <div class="mountain mountain-one"></div>
+
+                <div class="mountain mountain-two"></div>
+
+                <div class="sun"></div>
+
+            </div>
+
+
+
+            <!-- =====================================
+                 STAT CARDS
+            ====================================== -->
+
+            <section class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-blue">
+                        ▱
+                    </div>
+
+                    <div class="stat-content">
+
+                        <strong>
+                            5
+                        </strong>
+
+                        <span>
+                            Total Projects
+                        </span>
+
+                    </div>
+
+                    <div class="stat-arrow">
+                        ›
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-green">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <strong>
+                            28
+                        </strong>
+
+                        <span>
+                            Total Tasks
+                        </span>
+
+                    </div>
+
+                    <div class="stat-arrow">
+                        ›
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-orange">
+                        ◷
+                    </div>
+
+                    <div class="stat-content">
+
+                        <strong>
+                            12
+                        </strong>
+
+                        <span>
+                            In Progress
+                        </span>
+
+                    </div>
+
+                    <div class="stat-arrow">
+                        ›
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-red">
+                        !
+                    </div>
+
+                    <div class="stat-content">
+
+                        <strong>
+                            4
+                        </strong>
+
+                        <span>
+                            Overdue
+                        </span>
+
+                    </div>
+
+                    <div class="stat-arrow">
+                        ›
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =====================================
+                 PROJECTS + DEADLINES
+            ====================================== -->
+
+            <section class="dashboard-grid">
+
+
+                <!-- RECENT PROJECTS -->
+
+                <div class="dashboard-card projects-card">
+
+                    <div class="card-header">
+
+                        <div class="card-title">
+
+                            <span class="title-icon">
+                                ▱
+                            </span>
+
+                            <h2>
+                                Recent Projects
+                            </h2>
+
+                        </div>
+
+                        <a href="#">
+                            View All
+                        </a>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table class="project-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Project Name
+                                    </th>
+
+                                    <th>
+                                        Description
+                                    </th>
+
+                                    <th>
+                                        Team
+                                    </th>
+
+                                    <th>
+                                        Tasks
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Due Date
+                                    </th>
+
+                                    <th></th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="project-name">
+
+                                            <span class="project-letter blue">
+                                                W
+                                            </span>
+
+                                            <strong>
+                                                Website Redesign
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Main website updates
+                                    </td>
+
+                                    <td>
+
+                                        <div class="avatars">
+
+                                            <span>AR</span>
+                                            <span>PK</span>
+                                            <span>ST</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        8
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status status-progress">
+                                            In Progress
+                                        </span>
+
+                                    </td>
+
+                                    <td class="due-date">
+                                        Jun 20
+                                    </td>
+
+                                    <td>
+                                        ⋮
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="project-name">
+
+                                            <span class="project-letter red">
+                                                M
+                                            </span>
+
+                                            <strong>
+                                                Mobile App
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Android & iOS app
+                                    </td>
+
+                                    <td>
+
+                                        <div class="avatars">
+
+                                            <span>PK</span>
+                                            <span>ST</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        6
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status status-todo">
+                                            To Do
+                                        </span>
+
+                                    </td>
+
+                                    <td class="due-date">
+                                        Jun 25
+                                    </td>
+
+                                    <td>
+                                        ⋮
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="project-name">
+
+                                            <span class="project-letter purple">
+                                                C
+                                            </span>
+
+                                            <strong>
+                                                Client Portal
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Customer dashboard
+                                    </td>
+
+                                    <td>
+
+                                        <div class="avatars">
+
+                                            <span>AR</span>
+                                            <span>JK</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        7
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status status-progress">
+                                            In Progress
+                                        </span>
+
+                                    </td>
+
+                                    <td class="due-date">
+                                        Jun 28
+                                    </td>
+
+                                    <td>
+                                        ⋮
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="project-name">
+
+                                            <span class="project-letter green">
+                                                M
+                                            </span>
+
+                                            <strong>
+                                                Marketing
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Marketing materials
+                                    </td>
+
+                                    <td>
+
+                                        <div class="avatars">
+
+                                            <span>ST</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        4
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status status-completed">
+                                            Completed
+                                        </span>
+
+                                    </td>
+
+                                    <td class="due-date">
+                                        Jun 15
+                                    </td>
+
+                                    <td>
+                                        ⋮
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="project-name">
+
+                                            <span class="project-letter orange">
+                                                I
+                                            </span>
+
+                                            <strong>
+                                                Internal Tools
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Admin utilities
+                                    </td>
+
+                                    <td>
+
+                                        <div class="avatars">
+
+                                            <span>JK</span>
+                                            <span>ST</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        3
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status status-todo">
+                                            To Do
+                                        </span>
+
+                                    </td>
+
+                                    <td class="due-date">
+                                        Jun 30
+                                    </td>
+
+                                    <td>
+                                        ⋮
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- UPCOMING DEADLINES -->
+
+                <div class="dashboard-card deadlines-card">
+
+                    <div class="card-header">
+
+                        <div class="card-title">
+
+                            <span class="title-icon">
+                                ▣
+                            </span>
+
+                            <h2>
+                                Upcoming Deadlines
+                            </h2>
+
+                        </div>
+
+                        <a href="#">
+                            View All
+                        </a>
+
+                    </div>
+
+
+                    <div class="deadline-list">
+
+
+                        <div class="deadline-item">
+
+                            <div class="deadline-date danger">
+
+                                <strong>
+                                    12
+                                </strong>
+
+                                <span>
+                                    Jun
+                                </span>
+
+                            </div>
+
+                            <div class="deadline-info">
+
+                                <strong>
+                                    Design Homepage
+                                </strong>
+
+                                <span>
+                                    Website Redesign
+                                </span>
+
+                            </div>
+
+                            <span class="priority high">
+                                High
+                            </span>
+
+                        </div>
+
+
+                        <div class="deadline-item">
+
+                            <div class="deadline-date">
+
+                                <strong>
+                                    14
+                                </strong>
+
+                                <span>
+                                    Jun
+                                </span>
+
+                            </div>
+
+                            <div class="deadline-info">
+
+                                <strong>
+                                    API Integration
+                                </strong>
+
+                                <span>
+                                    Mobile App
+                                </span>
+
+                            </div>
+
+                            <span class="priority medium">
+                                Medium
+                            </span>
+
+                        </div>
+
+
+                        <div class="deadline-item">
+
+                            <div class="deadline-date">
+
+                                <strong>
+                                    18
+                                </strong>
+
+                                <span>
+                                    Jun
+                                </span>
+
+                            </div>
+
+                            <div class="deadline-info">
+
+                                <strong>
+                                    Client Meeting Prep
+                                </strong>
+
+                                <span>
+                                    Client Portal
+                                </span>
+
+                            </div>
+
+                            <span class="priority medium">
+                                Medium
+                            </span>
+
+                        </div>
+
+
+                        <div class="deadline-item">
+
+                            <div class="deadline-date">
+
+                                <strong>
+                                    20
+                                </strong>
+
+                                <span>
+                                    Jun
+                                </span>
+
+                            </div>
+
+                            <div class="deadline-info">
+
+                                <strong>
+                                    Marketing Assets
+                                </strong>
+
+                                <span>
+                                    Marketing
+                                </span>
+
+                            </div>
+
+                            <span class="priority low">
+                                Low
+                            </span>
+
+                        </div>
+
+
+                        <div class="deadline-item">
+
+                            <div class="deadline-date">
+
+                                <strong>
+                                    25
+                                </strong>
+
+                                <span>
+                                    Jun
+                                </span>
+
+                            </div>
+
+                            <div class="deadline-info">
+
+                                <strong>
+                                    App Store Deployment
+                                </strong>
+
+                                <span>
+                                    Mobile App
+                                </span>
+
+                            </div>
+
+                            <span class="priority low">
+                                Low
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =====================================
+                 ANALYTICS
+            ====================================== -->
+
+            <section class="analytics-grid">
+
+
+                <!-- TASK OVERVIEW -->
+
+                <div class="dashboard-card chart-card">
+
+                    <div class="card-header">
+
+                        <div class="card-title">
+
+                            <span class="title-icon">
+                                ▥
+                            </span>
+
+                            <h2>
+                                Task Overview
+                            </h2>
+
+                        </div>
+
+
+                        <select class="chart-select">
+
+                            <option>
+                                This Month
+                            </option>
+
+                            <option>
+                                This Week
+                            </option>
+
+                            <option>
+                                This Year
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="chart-area">
+
+                        <div class="chart-y-axis">
+
+                            <span>20</span>
+                            <span>15</span>
+                            <span>10</span>
+                            <span>5</span>
+                            <span>0</span>
+
+                        </div>
+
+
+                        <div class="line-chart">
+
+                            <div class="grid-line line-20"></div>
+                            <div class="grid-line line-15"></div>
+                            <div class="grid-line line-10"></div>
+                            <div class="grid-line line-5"></div>
+                            <div class="grid-line line-0"></div>
+
+
+                            <svg viewBox="0 0 600 220"
+                                 preserveAspectRatio="none"
+                                 class="chart-svg">
+
+                                <defs>
+
+                                    <linearGradient id="blueGradient"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="0"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#4d75ff"
+                                              stop-opacity=".20" />
+
+                                        <stop offset="100%"
+                                              stop-color="#4d75ff"
+                                              stop-opacity="0" />
+
+                                    </linearGradient>
+
+
+                                    <linearGradient id="greenGradient"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="0"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#20c997"
+                                              stop-opacity=".18" />
+
+                                        <stop offset="100%"
+                                              stop-color="#20c997"
+                                              stop-opacity="0" />
+
+                                    </linearGradient>
+
+                                </defs>
+
+
+                                <path d="M0 150
+                                C60 130 80 125 120 110
+                                C170 95 200 115 240 105
+                                C290 90 320 50 360 55
+                                C410 60 430 90 470 75
+                                C520 55 550 45 600 30
+                                L600 220
+                                L0 220 Z"
+                                      fill="url(#blueGradient)" />
+
+
+                                <path d="M0 190
+                                C70 175 90 165 130 160
+                                C180 150 200 165 240 155
+                                C290 145 330 110 360 115
+                                C410 120 440 140 475 130
+                                C525 115 555 110 600 95
+                                L600 220
+                                L0 220 Z"
+                                      fill="url(#greenGradient)" />
+
+
+                                <path d="M0 150
+                                C60 130 80 125 120 110
+                                C170 95 200 115 240 105
+                                C290 90 320 50 360 55
+                                C410 60 430 90 470 75
+                                C520 55 550 45 600 30"
+                                      fill="none"
+                                      stroke="#3164f4"
+                                      stroke-width="4"
+                                      stroke-linecap="round" />
+
+
+                                <path d="M0 190
+                                C70 175 90 165 130 160
+                                C180 150 200 165 240 155
+                                C290 145 330 110 360 115
+                                C410 120 440 140 475 130
+                                C525 115 555 110 600 95"
+                                      fill="none"
+                                      stroke="#20b987"
+                                      stroke-width="4"
+                                      stroke-linecap="round" />
+
+                            </svg>
+
+
+                            <div class="chart-labels">
+
+                                <span>1 Jun</span>
+                                <span>5 Jun</span>
+                                <span>10 Jun</span>
+                                <span>15 Jun</span>
+                                <span>20 Jun</span>
+                                <span>25 Jun</span>
+                                <span>30 Jun</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="chart-legend">
+
+                            <div>
+
+                                <span class="legend-dot blue-dot"></span>
+
+                                Created
+
+                                <strong>
+                                    18
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="legend-dot green-dot"></span>
+
+                                Completed
+
+                                <strong>
+                                    12
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PROJECT DISTRIBUTION -->
+
+                <div class="dashboard-card distribution-card">
+
+                    <div class="card-header">
+
+                        <div class="card-title">
+
+                            <span class="title-icon">
+                                ◔
+                            </span>
+
+                            <h2>
+                                Project Distribution
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="distribution-content">
+
+
+                        <div class="donut">
+
+                            <div class="donut-inner">
+
+                                <strong>
+                                    5
+                                </strong>
+
+                                <span>
+                                    Projects
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="distribution-list">
+
+
+                            <div>
+
+                                <span class="distribution-dot dot-blue"></span>
+
+                                <span>
+                                    Website Redesign
+                                </span>
+
+                                <strong>
+                                    1
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="distribution-dot dot-green"></span>
+
+                                <span>
+                                    Mobile App
+                                </span>
+
+                                <strong>
+                                    1
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="distribution-dot dot-yellow"></span>
+
+                                <span>
+                                    Client Portal
+                                </span>
+
+                                <strong>
+                                    1
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="distribution-dot dot-purple"></span>
+
+                                <span>
+                                    Marketing
+                                </span>
+
+                                <strong>
+                                    1
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="distribution-dot dot-red"></span>
+
+                                <span>
+                                    Internal Tools
+                                </span>
+
+                                <strong>
+                                    1
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/account/logout.js" asp-append-version="true"></script>
+
+</body>
+
+</html>

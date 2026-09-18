@@ -1,0 +1,609 @@
+﻿:root {
+    --tm-primary: #3155f5;
+    --tm-primary-dark: #2443d4;
+    --tm-dark: #10182f;
+    --tm-text: #18213d;
+    --tm-muted: #6f7892;
+    --tm-border: #e1e6f0;
+    --tm-background: #f5f7fc;
+    --tm-white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+    body.account-page {
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: var(--tm-background);
+        color: var(--tm-text);
+    }
+
+
+/* =========================================
+   MAIN WRAPPER
+========================================= */
+
+.account-wrapper {
+    min-height: 100vh;
+    display: flex;
+}
+
+
+/* =========================================
+   LEFT BRAND PANEL
+========================================= */
+
+.account-brand-panel {
+    width: 48%;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 7%;
+    color: white;
+    background: radial-gradient( circle at 15% 15%, rgba(71, 97, 255, 0.35), transparent 35% ), linear-gradient( 145deg, #111a35 0%, #17234a 50%, #233b82 100% );
+}
+
+
+    /* Decorative circles */
+
+    .account-brand-panel::before {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.035);
+        right: -180px;
+        top: -160px;
+    }
+
+    .account-brand-panel::after {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.025);
+        left: -170px;
+        bottom: -150px;
+    }
+
+
+/* =========================================
+   BRAND
+========================================= */
+
+.brand-content,
+.brand-footer {
+    position: relative;
+    z-index: 2;
+}
+
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    width: fit-content;
+}
+
+    .brand-logo:hover {
+        color: white;
+    }
+
+    .brand-logo strong {
+        display: block;
+        font-size: 22px;
+        line-height: 1.1;
+        letter-spacing: -0.5px;
+    }
+
+    .brand-logo small {
+        display: block;
+        margin-top: 3px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.62);
+        letter-spacing: 0.4px;
+    }
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: var(--tm-primary);
+    color: white;
+    font-size: 25px;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(49, 85, 245, 0.3);
+}
+
+
+/* =========================================
+   BRAND MESSAGE
+========================================= */
+
+.brand-message {
+    max-width: 520px;
+    margin-top: 100px;
+}
+
+.eyebrow {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #dbe3ff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+}
+
+.brand-message h1 {
+    margin-top: 25px;
+    margin-bottom: 20px;
+    font-size: clamp(42px, 4vw, 64px);
+    line-height: 1.04;
+    font-weight: 750;
+    letter-spacing: -2.5px;
+}
+
+.brand-message > p {
+    max-width: 470px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 42px;
+}
+
+
+/* =========================================
+   FEATURES
+========================================= */
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.feature-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #8fa5ff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.feature-item strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+.feature-item small {
+    display: block;
+    color: rgba(255, 255, 255, 0.56);
+    font-size: 12px;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.brand-footer {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+}
+
+
+/* =========================================
+   RIGHT FORM PANEL
+========================================= */
+
+.account-form-panel {
+    width: 52%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 30px;
+    background: radial-gradient( circle at 80% 10%, rgba(49, 85, 245, 0.07), transparent 30% ), #f7f9fd;
+}
+
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+
+.form-container {
+    width: 100%;
+    max-width: 480px;
+    padding: 42px;
+    background: white;
+    border: 1px solid rgba(31, 45, 80, 0.07);
+    border-radius: 22px;
+    box-shadow: 0 25px 70px rgba(30, 42, 75, 0.08);
+}
+
+
+/* =========================================
+   MOBILE BRAND
+========================================= */
+
+.mobile-brand {
+    display: none;
+    margin-bottom: 35px;
+}
+
+    .mobile-brand .brand-logo {
+        color: var(--tm-dark);
+    }
+
+        .mobile-brand .brand-logo strong {
+            color: var(--tm-dark);
+        }
+
+        .mobile-brand .brand-logo small {
+            color: var(--tm-muted);
+        }
+
+
+/* =========================================
+   FORM HEADER
+========================================= */
+
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    border-radius: 17px;
+    background: #eef2ff;
+    color: var(--tm-primary);
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.form-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 750;
+    letter-spacing: -0.8px;
+}
+
+.form-header p {
+    margin: 8px 0 0;
+    color: var(--tm-muted);
+    font-size: 14px;
+}
+
+
+/* =========================================
+   ALERT
+========================================= */
+
+.account-alert {
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================
+   LABEL
+========================================= */
+
+.form-label {
+    color: #252d46;
+    font-size: 13px;
+    font-weight: 650;
+    margin-bottom: 8px;
+}
+
+
+/* =========================================
+   INPUT
+========================================= */
+
+.input-wrapper {
+    position: relative;
+}
+
+    .input-wrapper .form-control {
+        height: 50px;
+        border: 1px solid var(--tm-border);
+        border-radius: 11px;
+        padding-left: 43px;
+        padding-right: 45px;
+        color: var(--tm-text);
+        font-size: 14px;
+        background: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .input-wrapper .form-control::placeholder {
+            color: #a3aabd;
+        }
+
+        .input-wrapper .form-control:focus {
+            border-color: var(--tm-primary);
+            box-shadow: 0 0 0 4px rgba(49, 85, 245, 0.09);
+        }
+
+.input-icon {
+    position: absolute;
+    z-index: 3;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8992aa;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+
+/* =========================================
+   PASSWORD TOGGLE
+========================================= */
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #7e879d;
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+    .password-toggle:hover {
+        background: #f1f3f8;
+        color: var(--tm-primary);
+    }
+
+
+/* =========================================
+   FIELD ERROR
+========================================= */
+
+.field-error {
+    min-height: 17px;
+    color: #dc3545;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+
+/* =========================================
+   PASSWORD HINT
+========================================= */
+
+.password-hint {
+    color: #929aae;
+    font-size: 10px;
+    margin-top: 6px;
+}
+
+
+/* =========================================
+   CHECKBOX
+========================================= */
+
+.form-check-input {
+    cursor: pointer;
+}
+
+    .form-check-input:checked {
+        background-color: var(--tm-primary);
+        border-color: var(--tm-primary);
+    }
+
+.form-check-label {
+    color: #626b83;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   BUTTON
+========================================= */
+
+.account-btn {
+    height: 52px;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient( 135deg, #3155f5, #4b68f7 );
+    color: white;
+    font-size: 14px;
+    font-weight: 650;
+    box-shadow: 0 9px 22px rgba(49, 85, 245, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .account-btn:hover {
+        color: white;
+        background: linear-gradient( 135deg, #284be8, #405ef0 );
+        transform: translateY(-1px);
+        box-shadow: 0 12px 27px rgba(49, 85, 245, 0.28);
+    }
+
+    .account-btn:active {
+        transform: translateY(0);
+    }
+
+    .account-btn:disabled {
+        opacity: 0.75;
+        transform: none;
+    }
+
+
+/* =========================================
+   BOTTOM LINK
+========================================= */
+
+.form-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 25px;
+    color: #8991a5;
+    font-size: 12px;
+}
+
+    .form-bottom a {
+        color: var(--tm-primary);
+        font-weight: 650;
+        text-decoration: none;
+    }
+
+        .form-bottom a:hover {
+            text-decoration: underline;
+        }
+
+
+/* =========================================
+   SECURITY NOTE
+========================================= */
+
+.security-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 25px;
+    padding-top: 18px;
+    border-top: 1px solid #edf0f5;
+    color: #9aa1b2;
+    font-size: 10px;
+    text-align: center;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 991.98px) {
+
+    .account-brand-panel {
+        width: 42%;
+        padding: 40px 5%;
+    }
+
+    .account-form-panel {
+        width: 58%;
+        padding: 35px 20px;
+    }
+
+    .form-container {
+        padding: 32px 28px;
+    }
+
+    .brand-message {
+        margin-top: 70px;
+    }
+
+        .brand-message h1 {
+            font-size: 42px;
+        }
+
+        .brand-message > p {
+            font-size: 14px;
+        }
+}
+
+
+@media (max-width: 767.98px) {
+
+    .account-wrapper {
+        display: block;
+    }
+
+    .account-brand-panel {
+        display: none;
+    }
+
+    .account-form-panel {
+        width: 100%;
+        min-height: 100vh;
+        padding: 25px 16px;
+        align-items: flex-start;
+    }
+
+    .form-container {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 28px 22px;
+        border-radius: 18px;
+        box-shadow: 0 15px 45px rgba(30, 42, 75, 0.08);
+    }
+
+    .mobile-brand {
+        display: block;
+    }
+
+    .form-header h2 {
+        font-size: 25px;
+    }
+}
+
+
+@media (max-width: 400px) {
+
+    .account-form-panel {
+        padding: 15px 10px;
+    }
+
+    .form-container {
+        padding: 25px 18px;
+    }
+
+    .mobile-brand {
+        margin-bottom: 28px;
+    }
+
+    .form-header {
+        margin-bottom: 25px;
+    }
+}
