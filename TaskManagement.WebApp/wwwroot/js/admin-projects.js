@@ -1,29 +1,14 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
-       ELEMENTS
+       COMMON ELEMENTS
     ====================================================== */
 
     const createForm =
         document.getElementById("createProjectForm");
 
-    const modalElement =
+    const addProjectModal =
         document.getElementById("addProjectModal");
-
-    const saveButton =
-        document.getElementById("saveProjectBtn");
-
-    const saveText =
-        document.getElementById("saveProjectText");
-
-    const saveSpinner =
-        document.getElementById("saveProjectSpinner");
-
-    const errorMessage =
-        document.getElementById("projectFormError");
-
-    const successMessage =
-        document.getElementById("projectFormSuccess");
 
     const projectSearch =
         document.getElementById("projectSearch");
@@ -34,10 +19,12 @@
     const resetFilters =
         document.getElementById("resetFilters");
 
+    const projectList =
+        document.getElementById("projectsList");
 
 
     /* =====================================================
-       ADD PROJECT
+       CREATE PROJECT
     ====================================================== */
 
     if (createForm) {
@@ -50,22 +37,17 @@
 
                 clearMessages();
 
-
                 const startDate =
-                    document.getElementById("StartDate").value;
+                    document.getElementById("StartDate")?.value;
 
                 const endDate =
-                    document.getElementById("EndDate").value;
-
-
-                /* Date validation */
+                    document.getElementById("EndDate")?.value;
 
                 if (
                     startDate &&
                     endDate &&
                     startDate > endDate
                 ) {
-
                     showError(
                         "Start date cannot be later than end date."
                     );
@@ -73,15 +55,19 @@
                     return;
                 }
 
+                const submitButton =
+                    createForm.querySelector(
+                        'button[type="submit"]'
+                    );
 
-                setLoading(true);
-
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
 
                 try {
 
                     const formData =
                         new FormData(createForm);
-
 
                     const response =
                         await fetch(
@@ -96,42 +82,34 @@
                             }
                         );
 
-
-                    /*
-                     * Backend should return JSON for AJAX.
-                     */
-
                     const contentType =
-                        response.headers.get("content-type") || "";
+                        response.headers.get(
+                            "content-type"
+                        ) || "";
 
-
-                    if (!contentType.includes("application/json")) {
-
-                        /*
-                         * Your current backend redirects after Create.
-                         * If backend hasn't been changed for AJAX yet,
-                         * fall back safely instead of breaking the page.
-                         */
+                    if (
+                        !contentType.includes(
+                            "application/json"
+                        )
+                    ) {
 
                         if (response.ok) {
-
                             window.location.reload();
-
                             return;
                         }
-
 
                         throw new Error(
                             "Unexpected server response."
                         );
                     }
 
-
                     const result =
                         await response.json();
 
-
-                    if (!response.ok || !result.success) {
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
 
                         showError(
                             result.message ||
@@ -141,47 +119,41 @@
                         return;
                     }
 
+                    /*
+                     * Refresh only the project section.
+                     * Full page reload is avoided.
+                     */
 
-                    /* =====================================
-                       SUCCESS
-                    ====================================== */
+                    await refreshProjectsFragment();
 
-                    addProjectToPage(
-                        result.project
-                    );
-
-
-                    updateStatistics();
-
+                    resetCreateForm();
 
                     showSuccess(
                         result.message ||
                         "Project created successfully."
                     );
 
-
-                    resetProjectForm();
-
-
-                    /*
-                     * Close modal after a small delay.
-                     */
-
                     setTimeout(function () {
 
-                        const modal =
-                            bootstrap.Modal.getInstance(
-                                modalElement
-                            );
+                        if (
+                            addProjectModal &&
+                            typeof bootstrap !== "undefined"
+                        ) {
 
-                        if (modal) {
-                            modal.hide();
+                            const modal =
+                                bootstrap.Modal
+                                    .getInstance(
+                                        addProjectModal
+                                    );
+
+                            if (modal) {
+                                modal.hide();
+                            }
                         }
 
                         clearMessages();
 
                     }, 700);
-
 
                 }
                 catch (error) {
@@ -198,7 +170,9 @@
                 }
                 finally {
 
-                    setLoading(false);
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                    }
 
                 }
 
@@ -206,7 +180,6 @@
         );
 
     }
-
 
 
     /* =====================================================
@@ -223,7 +196,6 @@
     }
 
 
-
     /* =====================================================
        STATUS FILTER
     ====================================================== */
@@ -238,7 +210,6 @@
     }
 
 
-
     /* =====================================================
        RESET FILTERS
     ====================================================== */
@@ -249,9 +220,13 @@
             "click",
             function () {
 
-                projectSearch.value = "";
+                if (projectSearch) {
+                    projectSearch.value = "";
+                }
 
-                statusFilter.value = "";
+                if (statusFilter) {
+                    statusFilter.value = "";
+                }
 
                 filterProjects();
 
@@ -261,37 +236,225 @@
     }
 
 
-
     /* =====================================================
        VIEW PROJECT DETAILS
     ====================================================== */
 
     document.addEventListener(
         "click",
-        function (event) {
+        async function (event) {
 
             const button =
                 event.target.closest(
                     ".view-project-btn"
                 );
 
-
             if (!button) {
                 return;
             }
 
-
             const projectId =
                 button.dataset.projectId;
 
+            if (!projectId) {
+                return;
+            }
 
-            showProjectDetails(
-                projectId
-            );
+            const article =
+                button.closest(
+                    ".project-item"
+                );
+
+            if (!article) {
+                return;
+            }
+
+            /*
+             * Toggle existing details.
+             */
+
+            const existingDetails =
+                article.nextElementSibling;
+
+            if (
+                existingDetails &&
+                existingDetails.classList.contains(
+                    "project-expanded-details"
+                )
+            ) {
+
+                existingDetails.remove();
+
+                return;
+            }
+
+            /*
+             * Close any other expanded details.
+             */
+
+            document
+                .querySelectorAll(
+                    ".project-expanded-details"
+                )
+                .forEach(function (element) {
+
+                    element.remove();
+
+                });
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/Admin/Projects/Details?id=" +
+                        encodeURIComponent(projectId)
+                    );
+
+                const result =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    alert(
+                        result.message ||
+                        "Unable to load project details."
+                    );
+
+                    return;
+                }
+
+                const project =
+                    result.data;
+
+                const detailsContainer =
+                    document.createElement(
+                        "div"
+                    );
+
+                detailsContainer.className =
+                    "project-expanded-details";
+
+                detailsContainer.innerHTML = `
+
+                    <div class="project-details-expanded-card">
+
+                        <div class="details-row">
+
+                            <div>
+                                <strong>
+                                    Description
+                                </strong>
+
+                                <p>
+                                    ${escapeHtml(
+                    project.description ||
+                    "No description provided."
+                )
+                    }
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <strong>
+                                    Tech Stack
+                                </strong>
+
+                                <p>
+                                    ${escapeHtml(
+                        project.techStack ||
+                        "-"
+                    )
+                    }
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <strong>
+                                    Start Date
+                                </strong>
+
+                                <p>
+                                    ${formatDate(
+                        project.startDate
+                    )
+                    }
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <strong>
+                                    End Date
+                                </strong>
+
+                                <p>
+                                    ${formatDate(
+                        project.endDate
+                    )
+                    }
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <strong>
+                                    Members
+                                </strong>
+
+                                <p>
+                                    ${project.membersCount ??
+                    "-"
+                    }
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <strong>
+                                    Status
+                                </strong>
+
+                                <p>
+                                    ${escapeHtml(
+                        project.status ||
+                        "-"
+                    )
+                    }
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                article.insertAdjacentElement(
+                    "afterend",
+                    detailsContainer
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Project details error:",
+                    error
+                );
+
+                alert(
+                    "Unable to load project details."
+                );
+
+            }
 
         }
     );
-
 
 
     /* =====================================================
@@ -307,43 +470,546 @@
                     ".manage-task-btn"
                 );
 
+            if (!button) {
+                return;
+            }
+
+            const projectId =
+                button.dataset.projectId;
+
+            if (!projectId) {
+                return;
+            }
+
+            window.location.href =
+                "/Admin/Tasks/Project/" +
+                encodeURIComponent(projectId);
+
+        }
+    );
+
+
+    /* =====================================================
+       MORE BUTTON
+       EDIT / DELETE
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const moreButton =
+                event.target.closest(
+                    ".project-more-btn"
+                );
+
+            if (!moreButton) {
+                return;
+            }
+
+            event.stopPropagation();
+
+            /*
+             * Remove existing menus.
+             */
+
+            document
+                .querySelectorAll(
+                    ".project-more-menu"
+                )
+                .forEach(function (menu) {
+
+                    menu.remove();
+
+                });
+
+            const projectId =
+                moreButton.dataset.projectId;
+
+            if (!projectId) {
+                return;
+            }
+
+            const rect =
+                moreButton.getBoundingClientRect();
+
+            const menu =
+                document.createElement("div");
+
+            menu.className =
+                "project-more-menu";
+
+            menu.style.position = "absolute";
+            menu.style.left =
+                (
+                    rect.left +
+                    window.scrollX
+                ) + "px";
+
+            menu.style.top =
+                (
+                    rect.bottom +
+                    window.scrollY +
+                    8
+                ) + "px";
+
+            menu.style.background =
+                "#ffffff";
+
+            menu.style.border =
+                "1px solid #ddd";
+
+            menu.style.padding =
+                "6px";
+
+            menu.style.zIndex =
+                "2000";
+
+            menu.innerHTML = `
+
+                <button
+                    type="button"
+                    class="btn btn-link project-action-edit"
+                    data-project-id="${escapeHtml(projectId)}">
+
+                    Edit
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-link text-danger project-action-delete"
+                    data-project-id="${escapeHtml(projectId)}">
+
+                    Delete
+
+                </button>
+
+            `;
+
+            document.body.appendChild(menu);
+
+
+            /*
+             * Close menu when clicking outside.
+             */
+
+            setTimeout(function () {
+
+                document.addEventListener(
+                    "click",
+                    function closeMenu(event) {
+
+                        if (
+                            !menu.contains(
+                                event.target
+                            ) &&
+                            event.target !==
+                            moreButton
+                        ) {
+
+                            menu.remove();
+
+                            document.removeEventListener(
+                                "click",
+                                closeMenu
+                            );
+
+                        }
+
+                    }
+                );
+
+            }, 0);
+
+        }
+    );
+
+
+    /* =====================================================
+       EDIT PROJECT
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        async function (event) {
+
+            const button =
+                event.target.closest(
+                    ".project-action-edit"
+                );
 
             if (!button) {
                 return;
             }
 
-
             const projectId =
                 button.dataset.projectId;
 
+            if (!projectId) {
+                return;
+            }
 
-            /*
-             * This will be connected to the Tasks page
-             * when your backend teammate completes
-             * the Manage Tasks route.
-             */
+            document
+                .querySelectorAll(
+                    ".project-more-menu"
+                )
+                .forEach(function (menu) {
+                    menu.remove();
+                });
 
-            console.log(
-                "Manage Tasks for project:",
-                projectId
-            );
+            try {
+
+                const response =
+                    await fetch(
+                        "/Admin/Projects/GetById?id=" +
+                        encodeURIComponent(projectId)
+                    );
+
+                if (!response.ok) {
+
+                    alert(
+                        "Unable to load project for editing."
+                    );
+
+                    return;
+                }
+
+                const project =
+                    await response.json();
+
+                if (!project) {
+
+                    alert(
+                        "Project not found."
+                    );
+
+                    return;
+                }
+
+                setInputValue(
+                    "EditId",
+                    project.id
+                );
+
+                setInputValue(
+                    "EditProjectTitle",
+                    project.projectTitle
+                );
+
+                setInputValue(
+                    "EditDescription",
+                    project.description
+                );
+
+                setInputValue(
+                    "EditTechStack",
+                    project.techStack
+                );
+
+                setInputValue(
+                    "EditStatus",
+                    project.status
+                );
+
+                setInputValue(
+                    "EditMembersCount",
+                    project.membersCount
+                );
+
+                setInputValue(
+                    "EditStartDate",
+                    formatInputDate(
+                        project.startDate
+                    )
+                );
+
+                setInputValue(
+                    "EditEndDate",
+                    formatInputDate(
+                        project.endDate
+                    )
+                );
+
+                const editModal =
+                    document.getElementById(
+                        "editProjectModal"
+                    );
+
+                if (
+                    editModal &&
+                    typeof bootstrap !== "undefined"
+                ) {
+
+                    bootstrap.Modal
+                        .getOrCreateInstance(
+                            editModal
+                        )
+                        .show();
+
+                }
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Edit project load error:",
+                    error
+                );
+
+                alert(
+                    "Unable to load project for editing."
+                );
+
+            }
 
         }
     );
 
+
+    /* =====================================================
+       UPDATE PROJECT
+    ====================================================== */
+
+    const editForm =
+        document.getElementById(
+            "editProjectForm"
+        );
+
+    if (editForm) {
+
+        editForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const submitButton =
+                    editForm.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                try {
+
+                    const formData =
+                        new FormData(editForm);
+
+                    const response =
+                        await fetch(
+                            editForm.action,
+                            {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-Requested-With":
+                                        "XMLHttpRequest"
+                                }
+                            }
+                        );
+
+                    const contentType =
+                        response.headers.get(
+                            "content-type"
+                        ) || "";
+
+                    if (
+                        !contentType.includes(
+                            "application/json"
+                        )
+                    ) {
+
+                        if (response.ok) {
+                            await refreshProjectsFragment();
+                            closeModal(
+                                "editProjectModal"
+                            );
+                            return;
+                        }
+
+                        throw new Error(
+                            "Unexpected server response."
+                        );
+                    }
+
+                    const result =
+                        await response.json();
+
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
+
+                        alert(
+                            result.message ||
+                            "Unable to update project."
+                        );
+
+                        return;
+                    }
+
+                    await refreshProjectsFragment();
+
+                    closeModal(
+                        "editProjectModal"
+                    );
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Update project error:",
+                        error
+                    );
+
+                    alert(
+                        "Something went wrong while updating the project."
+                    );
+
+                }
+                finally {
+
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       DELETE PROJECT
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        async function (event) {
+
+            const button =
+                event.target.closest(
+                    ".project-action-delete"
+                );
+
+            if (!button) {
+                return;
+            }
+
+            const projectId =
+                button.dataset.projectId;
+
+            if (!projectId) {
+                return;
+            }
+
+            document
+                .querySelectorAll(
+                    ".project-more-menu"
+                )
+                .forEach(function (menu) {
+                    menu.remove();
+                });
+
+            const confirmed =
+                window.confirm(
+                    "Are you sure you want to delete this project?"
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+
+                const token =
+                    getAntiForgeryToken(
+                        "createProjectForm"
+                    );
+
+                const formData =
+                    new FormData();
+
+                if (token) {
+
+                    formData.append(
+                        "__RequestVerificationToken",
+                        token
+                    );
+
+                }
+
+                formData.append(
+                    "id",
+                    projectId
+                );
+
+                const response =
+                    await fetch(
+                        "/Admin/Projects/Delete",
+                        {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                const result =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    alert(
+                        result.message ||
+                        "Unable to delete project."
+                    );
+
+                    return;
+                }
+
+                await refreshProjectsFragment();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Delete project error:",
+                    error
+                );
+
+                alert(
+                    "Something went wrong while deleting the project."
+                );
+
+            }
+
+        }
+    );
 
 
     /* =====================================================
        MODAL RESET
     ====================================================== */
 
-    if (modalElement) {
+    if (addProjectModal) {
 
-        modalElement.addEventListener(
+        addProjectModal.addEventListener(
             "hidden.bs.modal",
             function () {
 
-                resetProjectForm();
+                resetCreateForm();
 
                 clearMessages();
 
@@ -353,7 +1019,6 @@
     }
 
 
-
     /* =====================================================
        FUNCTIONS
     ====================================================== */
@@ -361,54 +1026,59 @@
 
     function filterProjects() {
 
+        if (!projectList) {
+            return;
+        }
+
         const search =
-            projectSearch.value
+            (
+                projectSearch?.value ||
+                ""
+            )
                 .trim()
                 .toLowerCase();
-
 
         const status =
-            statusFilter.value
+            (
+                statusFilter?.value ||
+                ""
+            )
                 .trim()
                 .toLowerCase();
 
-
         const projects =
-            document.querySelectorAll(
+            projectList.querySelectorAll(
                 ".project-item"
             );
 
-
         let visibleCount = 0;
-
 
         projects.forEach(
             function (project) {
 
-
                 const title =
                     (
-                        project.dataset.title || ""
+                        project.dataset.title ||
+                        ""
                     ).toLowerCase();
-
 
                 const description =
                     (
-                        project.dataset.description || ""
+                        project.dataset.description ||
+                        ""
                     ).toLowerCase();
-
 
                 const tech =
                     (
-                        project.dataset.tech || ""
+                        project.dataset.tech ||
+                        ""
                     ).toLowerCase();
-
 
                 const projectStatus =
                     (
-                        project.dataset.status || ""
+                        project.dataset.status ||
+                        ""
                     ).toLowerCase();
-
 
                 const matchesSearch =
                     !search ||
@@ -416,20 +1086,18 @@
                     description.includes(search) ||
                     tech.includes(search);
 
-
                 const matchesStatus =
                     !status ||
                     projectStatus === status;
-
 
                 const visible =
                     matchesSearch &&
                     matchesStatus;
 
-
                 project.style.display =
-                    visible ? "flex" : "none";
-
+                    visible
+                        ? "flex"
+                        : "none";
 
                 if (visible) {
                     visibleCount++;
@@ -438,14 +1106,12 @@
             }
         );
 
-
         updateEmptyFilterMessage(
             visibleCount,
             projects.length
         );
 
     }
-
 
 
     function updateEmptyFilterMessage(
@@ -458,7 +1124,6 @@
                 "noFilterResults"
             );
 
-
         if (
             visibleCount === 0 &&
             totalCount > 0
@@ -467,7 +1132,9 @@
             if (!message) {
 
                 message =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 message.id =
                     "noFilterResults";
@@ -491,9 +1158,11 @@
 
                 `;
 
-                document
-                    .getElementById("projectsList")
-                    .appendChild(message);
+                if (projectList) {
+                    projectList.appendChild(
+                        message
+                    );
+                }
 
             }
 
@@ -511,757 +1180,294 @@
     }
 
 
-
-    function addProjectToPage(project) {
-
-        if (!project) {
-            return;
-        }
-
-
-        const container =
-            document.getElementById(
-                "projectsList"
-            );
-
-
-        const oldEmptyState =
-            document.getElementById(
-                "emptyProjectState"
-            );
-
-
-        if (oldEmptyState) {
-            oldEmptyState.remove();
-        }
-
-
-        const oldFilterMessage =
-            document.getElementById(
-                "noFilterResults"
-            );
-
-
-        if (oldFilterMessage) {
-            oldFilterMessage.remove();
-        }
-
-
-        const initial =
-            project.projectTitle
-                ? project.projectTitle
-                    .charAt(0)
-                    .toUpperCase()
-                : "P";
-
-
-        const statusClass =
-            getStatusClass(
-                project.status
-            );
-
-
-        const techTags =
-            createTechTags(
-                project.techStack
-            );
-
-
-        const card =
-            document.createElement("article");
-
-
-        card.className =
-            "project-item";
-
-
-        card.dataset.title =
-            project.projectTitle || "";
-
-
-        card.dataset.description =
-            project.description || "";
-
-
-        card.dataset.tech =
-            project.techStack || "";
-
-
-        card.dataset.status =
-            project.status || "";
-
-
-        card.dataset.projectId =
-            project.id;
-
-
-        card.innerHTML = `
-
-            <div class="project-item-left">
-
-                <div class="project-logo">
-                    ${escapeHtml(initial)}
-                </div>
-
-
-                <div class="project-details">
-
-                    <h2>
-                        ${escapeHtml(project.projectTitle)}
-                    </h2>
-
-
-                    <p class="project-description">
-
-                        ${project.description
-                ? escapeHtml(
-                    project.description
-                )
-                : "No description provided for this project."
-            }
-
-                    </p>
-
-
-                    <div class="project-meta">
-
-
-                        <div class="project-meta-item">
-
-                            <span class="meta-icon">
-                                📅
-                            </span>
-
-                            <span>
-
-                                <small>
-                                    Start Date
-                                </small>
-
-                                ${formatDate(project.startDate)}
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="meta-line"></div>
-
-
-                        <div class="project-meta-item">
-
-                            <span class="meta-icon">
-                                📅
-                            </span>
-
-                            <span>
-
-                                <small>
-                                    End Date
-                                </small>
-
-                                ${formatDate(project.endDate)}
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="meta-line"></div>
-
-
-                        <div class="project-meta-item">
-
-                            <span class="meta-icon">
-                                👥
-                            </span>
-
-                            <span>
-
-                                <small>
-                                    Members
-                                </small>
-
-                                ${project.membersCount}
-
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-
-                    ${techTags
-                ? `
-                                <div class="tech-stack-list">
-                                    ${techTags}
-                                </div>
-                              `
-                : ""
-            }
-
-                </div>
-
-            </div>
-
-
-            <div class="project-item-right">
-
-
-                <div class="project-status-wrapper">
-
-                    <span class="status-title">
-                        Status
-                    </span>
-
-                    <span class="project-status ${statusClass}">
-                        ${escapeHtml(project.status)}
-                    </span>
-
-                </div>
-
-
-                <div class="project-actions">
-
-
-                    <button type="button"
-                            class="project-action-btn view-project-btn"
-                            data-project-id="${project.id}">
-
-                        <span>
-                            ◉
-                        </span>
-
-                        View Details
-
-                    </button>
-
-
-                    <button type="button"
-                            class="project-action-btn manage-task-btn"
-                            data-project-id="${project.id}">
-
-                        <span>
-                            ☷
-                        </span>
-
-                        Manage Tasks
-
-                    </button>
-
-
-                    <button type="button"
-                            class="project-more-btn"
-                            data-project-id="${project.id}">
-
-                        ⋮
-
-                    </button>
-
-
-                </div>
-
-
-            </div>
-
-        `;
-
-
-        container.prepend(card);
-
-    }
-
-
-
-    function createTechTags(
-        techStack
-    ) {
-
-        if (!techStack) {
-            return "";
-        }
-
-
-        return techStack
-            .split(",")
-            .map(
-                function (tech) {
-
-                    const cleanTech =
-                        tech.trim();
-
-
-                    if (!cleanTech) {
-                        return "";
-                    }
-
-
-                    return `
-                        <span class="tech-tag">
-                            ${escapeHtml(cleanTech)}
-                        </span>
-                    `;
-
-                }
-            )
-            .join("");
-
-    }
-
-
-
-    function updateStatistics() {
-
-        const projects =
-            document.querySelectorAll(
-                ".project-item"
-            );
-
-
-        let active = 0;
-
-        let inProgress = 0;
-
-        let completed = 0;
-
-
-        projects.forEach(
-            function (project) {
-
-                const status =
-                    (
-                        project.dataset.status ||
-                        ""
-                    ).toLowerCase();
-
-
-                if (status === "active") {
-                    active++;
-                }
-
-
-                if (
-                    status === "in progress"
-                ) {
-                    inProgress++;
-                }
-
-
-                if (
-                    status === "completed"
-                ) {
-                    completed++;
-                }
-
-            }
-        );
-
-
-        const totalElement =
-            document.getElementById(
-                "totalProjects"
-            );
-
-
-        const activeElement =
-            document.getElementById(
-                "activeProjects"
-            );
-
-
-        const progressElement =
-            document.getElementById(
-                "inProgressProjects"
-            );
-
-
-        const completedElement =
-            document.getElementById(
-                "completedProjects"
-            );
-
-
-        if (totalElement) {
-            totalElement.textContent =
-                projects.length;
-        }
-
-
-        if (activeElement) {
-            activeElement.textContent =
-                active;
-        }
-
-
-        if (progressElement) {
-            progressElement.textContent =
-                inProgress;
-        }
-
-
-        if (completedElement) {
-            completedElement.textContent =
-                completed;
-        }
-
-    }
-
-
-
-    async function showProjectDetails(
-        projectId
-    ) {
+    async function refreshProjectsFragment() {
 
         try {
 
-            /*
-             * Uses the existing GetProject endpoint
-             * if your backend teammate has added it.
-             */
-
             const response =
                 await fetch(
-                    `/Admin/Projects/GetProject?id=${encodeURIComponent(projectId)}`
+                    window.location.href,
+                    {
+                        cache: "no-store"
+                    }
                 );
-
 
             if (!response.ok) {
+                throw new Error(
+                    "Unable to refresh projects."
+                );
+            }
 
-                /*
-                 * Fallback:
-                 * get information directly from card.
-                 */
+            const html =
+                await response.text();
 
-                showDetailsFromCard(
-                    projectId
+            const parser =
+                new DOMParser();
+
+            const documentFragment =
+                parser.parseFromString(
+                    html,
+                    "text/html"
                 );
 
-                return;
+            const newProjectList =
+                documentFragment.getElementById(
+                    "projectsList"
+                );
+
+            const currentProjectList =
+                document.getElementById(
+                    "projectsList"
+                );
+
+            if (
+                newProjectList &&
+                currentProjectList
+            ) {
+
+                currentProjectList.innerHTML =
+                    newProjectList.innerHTML;
 
             }
 
+            /*
+             * Update statistics.
+             */
 
-            const project =
-                await response.json();
+            const statisticIds = [
+                "totalProjects",
+                "activeProjects",
+                "inProgressProjects",
+                "completedProjects"
+            ];
 
+            statisticIds.forEach(
+                function (id) {
 
-            fillDetailsModal(
-                project
+                    const newElement =
+                        documentFragment.getElementById(
+                            id
+                        );
+
+                    const currentElement =
+                        document.getElementById(
+                            id
+                        );
+
+                    if (
+                        newElement &&
+                        currentElement
+                    ) {
+
+                        currentElement.textContent =
+                            newElement.textContent;
+
+                    }
+
+                }
             );
 
+            /*
+             * Re-apply current filters.
+             */
+
+            filterProjects();
 
         }
         catch (error) {
 
             console.error(
-                "Project details error:",
+                "Refresh projects error:",
                 error
             );
 
-
-            showDetailsFromCard(
-                projectId
-            );
+            window.location.reload();
 
         }
 
     }
 
 
-
-    function showDetailsFromCard(
-        projectId
-    ) {
-
-        const card =
-            document.querySelector(
-                `.project-item[data-project-id="${projectId}"]`
-            );
-
-
-        if (!card) {
-            return;
-        }
-
-
-        const title =
-            card.dataset.title || "";
-
-
-        const description =
-            card.dataset.description || "";
-
-
-        const tech =
-            card.dataset.tech || "";
-
-
-        const status =
-            card.dataset.status || "";
-
-
-        const dateElements =
-            card.querySelectorAll(
-                ".project-meta-item"
-            );
-
-
-        let startDate = "-";
-
-        let endDate = "-";
-
-        let members = "-";
-
-
-        if (dateElements.length >= 3) {
-
-            startDate =
-                dateElements[0]
-                    .querySelector("span:last-child")
-                    ?.textContent
-                    .trim() || "-";
-
-
-            endDate =
-                dateElements[1]
-                    .querySelector("span:last-child")
-                    ?.textContent
-                    .trim() || "-";
-
-
-            members =
-                dateElements[2]
-                    .querySelector("span:last-child")
-                    ?.textContent
-                    .trim() || "-";
-
-        }
-
-
-        fillDetailsModal({
-
-            projectTitle: title,
-
-            description: description,
-
-            techStack: tech,
-
-            status: status,
-
-            startDate: startDate,
-
-            endDate: endDate,
-
-            membersCount: members
-
-        });
-
-    }
-
-
-
-    function fillDetailsModal(
-        project
-    ) {
-
-        document.getElementById(
-            "detailsProjectTitle"
-        ).textContent =
-            project.projectTitle || "Project Details";
-
-
-        document.getElementById(
-            "detailsProjectStatus"
-        ).textContent =
-            project.status || "";
-
-
-        document.getElementById(
-            "detailsDescription"
-        ).textContent =
-            project.description ||
-            "No description available.";
-
-
-        document.getElementById(
-            "detailsTechStack"
-        ).textContent =
-            project.techStack ||
-            "Not specified";
-
-
-        document.getElementById(
-            "detailsStartDate"
-        ).textContent =
-            formatDate(
-                project.startDate
-            );
-
-
-        document.getElementById(
-            "detailsEndDate"
-        ).textContent =
-            formatDate(
-                project.endDate
-            );
-
-
-        document.getElementById(
-            "detailsMembers"
-        ).textContent =
-            project.membersCount ?? "-";
-
-
-        document.getElementById(
-            "detailsStatus"
-        ).textContent =
-            project.status ||
-            "-";
-
-
-        const detailsModalElement =
-            document.getElementById(
-                "projectDetailsModal"
-            );
-
-
-        const detailsModal =
-            bootstrap.Modal.getOrCreateInstance(
-                detailsModalElement
-            );
-
-
-        detailsModal.show();
-
-    }
-
-
-
-    function resetProjectForm() {
+    function resetCreateForm() {
 
         if (!createForm) {
             return;
         }
 
-
         createForm.reset();
 
+        const status =
+            document.getElementById(
+                "Status"
+            );
 
-        document.getElementById(
-            "Status"
-        ).value = "Planning";
+        if (status) {
+            status.value =
+                "Planning";
+        }
 
+        const membersCount =
+            document.getElementById(
+                "MembersCount"
+            );
 
-        document.getElementById(
-            "MembersCount"
-        ).value = "1";
+        if (membersCount) {
+            membersCount.value =
+                "1";
+        }
 
     }
 
 
-
-    function setLoading(
-        loading
+    function closeModal(
+        modalId
     ) {
 
-        if (!saveButton) {
-            return;
-        }
+        const modalElement =
+            document.getElementById(
+                modalId
+            );
 
+        if (
+            modalElement &&
+            typeof bootstrap !== "undefined"
+        ) {
 
-        saveButton.disabled =
-            loading;
+            const modal =
+                bootstrap.Modal
+                    .getInstance(
+                        modalElement
+                    );
 
-
-        if (saveText) {
-
-            saveText.style.display =
-                loading
-                    ? "none"
-                    : "inline";
-
-        }
-
-
-        if (saveSpinner) {
-
-            saveSpinner.style.display =
-                loading
-                    ? "inline-block"
-                    : "none";
+            if (modal) {
+                modal.hide();
+            }
 
         }
 
     }
 
+
+    function setInputValue(
+        id,
+        value
+    ) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.value =
+                value ?? "";
+
+        }
+
+    }
+
+
+    function getAntiForgeryToken(
+        formId
+    ) {
+
+        const form =
+            document.getElementById(
+                formId
+            );
+
+        if (!form) {
+            return "";
+        }
+
+        const token =
+            form.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            );
+
+        return token
+            ? token.value
+            : "";
+
+    }
 
 
     function showError(
         message
     ) {
 
-        if (!errorMessage) {
+        const element =
+            document.getElementById(
+                "projectFormError"
+            );
+
+        if (!element) {
             return;
         }
 
-
-        errorMessage.textContent =
+        element.textContent =
             message;
 
-
-        errorMessage.style.display =
+        element.style.display =
             "block";
 
     }
-
 
 
     function showSuccess(
         message
     ) {
 
-        if (!successMessage) {
+        const element =
+            document.getElementById(
+                "projectFormSuccess"
+            );
+
+        if (!element) {
             return;
         }
 
-
-        successMessage.textContent =
+        element.textContent =
             message;
 
-
-        successMessage.style.display =
+        element.style.display =
             "block";
 
     }
 
 
-
     function clearMessages() {
 
-        if (errorMessage) {
+        const error =
+            document.getElementById(
+                "projectFormError"
+            );
 
-            errorMessage.textContent =
+        const success =
+            document.getElementById(
+                "projectFormSuccess"
+            );
+
+        if (error) {
+
+            error.textContent =
                 "";
 
-            errorMessage.style.display =
+            error.style.display =
                 "none";
 
         }
 
+        if (success) {
 
-        if (successMessage) {
-
-            successMessage.textContent =
+            success.textContent =
                 "";
 
-            successMessage.style.display =
+            success.style.display =
                 "none";
 
         }
 
     }
-
 
 
     function formatDate(
@@ -1272,25 +1478,18 @@
             return "-";
         }
 
-
-        /*
-         * Handles both:
-         * 2026-09-18
-         * 2026-09-18T00:00:00
-         */
-
         const date =
             new Date(value);
 
-
-        if (Number.isNaN(
-            date.getTime()
-        )) {
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
 
             return value;
 
         }
-
 
         return date.toLocaleDateString(
             "en-GB",
@@ -1304,6 +1503,51 @@
     }
 
 
+    function formatInputDate(
+        value
+    ) {
+
+        if (!value) {
+            return "";
+        }
+
+        /*
+         * Handles:
+         * 2026-09-18
+         * 2026-09-18T00:00:00
+         */
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return String(value)
+                .substring(0, 10);
+
+        }
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+
+    }
+
 
     function getStatusClass(
         status
@@ -1313,10 +1557,45 @@
             status || "Planning"
         )
             .toLowerCase()
-            .replaceAll(" ", "-");
+            .replaceAll(
+                " ",
+                "-"
+            );
 
     }
 
+
+    function createTechTags(
+        techStack
+    ) {
+
+        if (!techStack) {
+            return "";
+        }
+
+        return techStack
+            .split(",")
+            .map(
+                function (tech) {
+
+                    const cleanTech =
+                        tech.trim();
+
+                    if (!cleanTech) {
+                        return "";
+                    }
+
+                    return `
+                        <span class="tech-tag">
+                            ${escapeHtml(cleanTech)}
+                        </span>
+                    `;
+
+                }
+            )
+            .join("");
+
+    }
 
 
     function escapeHtml(
@@ -1332,13 +1611,27 @@
 
         }
 
-
         return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
 
     }
 

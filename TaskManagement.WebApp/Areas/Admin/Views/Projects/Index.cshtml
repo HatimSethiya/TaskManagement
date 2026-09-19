@@ -1268,6 +1268,245 @@
 
 </div> <!-- /#addProjectModal -->
 
+<!-- EDIT PROJECT MODAL -->
+<div class="modal fade"
+     id="editProjectModal"
+     tabindex="-1"
+     aria-labelledby="editProjectModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content project-modal">
+
+            <!-- MODAL HEADER -->
+            <div class="modal-header project-modal-header">
+
+                <div class="modal-title-wrapper">
+
+                    <div class="modal-project-icon">
+                        ▣
+                    </div>
+
+                    <div>
+
+                        <h2 id="editProjectModalLabel">
+                            Edit Project
+                        </h2>
+
+                        <p>
+                            Update the details for this project.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+            <form id="editProjectForm"
+                  method="post"
+                  action="@Url.Action(
+                      "Update",
+                      "Projects",
+                      new { area = "Admin" })">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="EditId" name="Id" />
+
+                <div class="modal-body project-modal-body">
+
+                    <div class="form-field">
+
+                        <label for="EditProjectTitle">
+
+                            Project Title
+
+                            <span>*</span>
+
+                        </label>
+
+
+                        <input type="text"
+                               id="EditProjectTitle"
+                               name="ProjectTitle"
+                               class="project-input"
+                               maxlength="150"
+                               placeholder="Enter project title"
+                               required />
+
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="EditDescription">
+                            Description
+                        </label>
+
+
+                        <textarea id="EditDescription"
+                                  name="Description"
+                                  class="project-input project-textarea"
+                                  maxlength="2000"
+                                  rows="4"
+                                  placeholder="Describe what this project is about..."></textarea>
+
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="EditTechStack">
+                            Tech Stack
+                        </label>
+
+
+                        <input type="text"
+                               id="EditTechStack"
+                               name="TechStack"
+                               class="project-input"
+                               maxlength="500"
+                               placeholder="e.g. ASP.NET Core, SQL Server, Bootstrap" />
+
+                        <small>
+                            Separate technologies using commas.
+                        </small>
+
+
+                    </div>
+
+                    <div class="project-form-row">
+
+                        <div class="form-field">
+
+                            <label for="EditStartDate">
+
+                                Start Date
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <input type="date"
+                                   id="EditStartDate"
+                                   name="StartDate"
+                                   class="project-input"
+                                   required />
+
+
+                        </div>
+
+
+                        <div class="form-field">
+
+                            <label for="EditEndDate">
+
+                                End Date
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <input type="date"
+                                   id="EditEndDate"
+                                   name="EndDate"
+                                   class="project-input"
+                                   required />
+
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="project-form-row">
+
+                        <div class="form-field">
+
+                            <label for="EditStatus">
+
+                                Status
+
+                                <span>*</span>
+
+                            </label>
+
+
+                            <select id="EditStatus"
+                                    name="Status"
+                                    class="project-input"
+                                    required>
+
+                                <option value="Planning">Planning</option>
+                                <option value="Active">Active</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+
+                            </select>
+
+
+                        </div>
+
+
+                        <div class="form-field">
+
+                            <label for="EditMembersCount">
+                                Members Count
+                            </label>
+
+
+                            <input type="number"
+                                   id="EditMembersCount"
+                                   name="MembersCount"
+                                   class="project-input"
+                                   min="1"
+                                   max="100" />
+
+
+                        </div>
+
+
+                    </div>
+
+                    <div id="editProjectFormError"
+                         class="project-form-message error"
+                         style="display:none;">
+                    </div>
+
+                    <div class="modal-footer project-modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 @functions {
     // Return a CSS class name for a given project status
@@ -1285,6 +1524,9 @@
         };
     }
 }
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/admin-projects.js" asp-append-version="true"></script>
 
 </body>
 
